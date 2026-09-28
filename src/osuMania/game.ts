@@ -662,7 +662,16 @@ export class Game {
   }
 
   private playUpdate(isAfterSeek?: boolean) {
-    this.timeElapsed = Math.round(this.song.seek() * 1000);
+    // Instead of just using audio seek:
+    this.timeElapsed = this.song.seek() * 1000;
+  
+    // Consider also using performance.now() for smoother interpolation
+    // This ensures consistent timing regardless of frame drops
+    const audioTime = this.song.seek() * 1000;
+    const now = performance.now();
+  
+    // Use audio time as the source of truth, not frame timing
+    this.timeElapsed = Math.round(audioTime);
 
     // Play video if it exists, accounting for audio delay
     if (
