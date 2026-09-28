@@ -67,7 +67,7 @@ export class InputSystem {
     }
 
     if (!timeElapsed) {
-      this.game.timeElapsed = Math.round(this.game.song.seek() * 1000);
+      this.game.timeElapsed = performance.now() - this.game.startTimeMs;
     }
 
     this.checkLateMisses(timeElapsed ?? this.game.timeElapsed);
@@ -96,7 +96,7 @@ export class InputSystem {
     }
 
     if (!timeElapsed) {
-      this.game.timeElapsed = Math.round(this.game.song.seek() * 1000);
+      this.game.timeElapsed = performance.now() - this.game.startTimeMs;
     }
 
     this.checkLateMisses(timeElapsed ?? this.game.timeElapsed);
@@ -219,7 +219,8 @@ export class InputSystem {
       if (this.game.videoEl) {
         this.game.videoEl.currentTime = time;
       }
-      this.game.song.seek(this.game.startTime / 1000 - 1);
+      this.game.song.seek(time);
+      this.game.setPlaybackTimeFromSong(time * 1000);
       return;
     }
 
