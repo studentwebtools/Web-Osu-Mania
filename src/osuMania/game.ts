@@ -663,6 +663,11 @@ export class Game {
     this.audioSystem.playedSounds.clear();
   }
 
+  public setPlaybackTimeFromSong(ms: number) {
+    this.timeElapsed = ms;
+    this.startTimeMs = performance.now() - ms;
+  }
+  
   private playUpdate(isAfterSeek?: boolean) {
     this.timeElapsed = performance.now() - this.startTimeMs;
 
@@ -1059,9 +1064,8 @@ export class Game {
     }
 
     this.song.seek(time);
-    this.startTimeMs = performance.now() - (time * 1000);
+    this.setPlaybackTimeFromSong(time * 1000);
 
-    this.timeElapsed = time * 1000;
     if (this.videoEl) {
       this.videoEl.currentTime = time;
     }
