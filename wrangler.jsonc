@@ -1,7 +1,7 @@
 {
     "$schema": "node_modules/wrangler/config-schema.json",
     "main": "@tanstack/react-start/server-entry",
-    "name": "web-osu-mania",
+    "name": "webosumania",
     "compatibility_date": "2025-09-08",
     "compatibility_flags": [
         "nodejs_compat"
