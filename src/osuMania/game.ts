@@ -624,6 +624,7 @@ export class Game {
             this.countdown.view.alpha = 1;
           }
 
+          this.startTimeMs = performance.now() - (this.song.seek() * 1000);
           this.play();
         }
 
