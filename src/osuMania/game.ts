@@ -150,12 +150,14 @@ export class Game {
   public song: Howl;
   public timeElapsed = 0;
   private delay: number;
-  public startTimeMs: number = 0;
 
   public videoEl: HTMLVideoElement | null;
 
   public startTime: number;
   public endTime: number;
+
+  public startTimeMs: number = 0;
+  private audioStarted = false;
 
   public breaks: Break[];
 
@@ -669,6 +671,10 @@ export class Game {
   }
   
   private playUpdate(isAfterSeek?: boolean) {
+    if (!this.audioStarted || !this.song.playing()) {
+      return;
+    }
+
     this.timeElapsed = performance.now() - this.startTimeMs;
 
     // Play video if it exists, accounting for audio delay
@@ -992,6 +998,7 @@ export class Game {
   }
 
   public pause() {
+    this.audioStarted = false;
     this.videoEl?.pause();
     this.song.pause();
     this.state = "PAUSE";
@@ -1026,9 +1033,17 @@ export class Game {
         this.videoEl.play();
       }
 
-      this.song.play();
-      this.startTimeMs = performance.now() - (this.song.seek() * 1000);
+      this.audioStarted = false;
       this.state = "PLAY";
+
+      this.song.once("play", () => {
+      this.audioStarted = true;
+
+      // Anchor the CPU clock to the actual audio start position.
+      this.startTimeMs = performance.now() - this.song.seek() * 1000;
+      });
+
+      this.song.play();
     }
   }
 
