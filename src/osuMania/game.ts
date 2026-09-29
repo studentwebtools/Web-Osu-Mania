@@ -676,10 +676,16 @@ export class Game {
     }
 
     const audioTime = this.song.seek() * 1000;
-    const cpuTime = performance.now() - this.startTimeMs;
+    const elapsedSinceAudioStart = performance.now() - this.startTimeMs;
 
-    // Use audio time as source of truth, but smooth with CPU time
-    this.timeElapsed = audioTime + (cpuTime - audioTime) * 0.1;
+    // Adjust CPU time advancement based on playback rate
+    this.timeElapsed = this.startTimeMs + (elapsedSinceAudioStart * this.mods.playbackRate);
+
+    // Keep it loosely synced to audio to prevent drift
+    const audioSync = audioTime;
+    if (Math.abs(this.timeElapsed - audioSync) > 100) {
+      this.timeElapsed = audioSync;
+    }
 
     // Play video if it exists, accounting for audio delay
     if (
