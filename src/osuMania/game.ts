@@ -150,6 +150,7 @@ export class Game {
   public song: Howl;
   public timeElapsed = 0;
   private delay: number;
+  public startTimeMs: number = 0;
 
   public videoEl: HTMLVideoElement | null;
 
@@ -662,7 +663,7 @@ export class Game {
   }
 
   private playUpdate(isAfterSeek?: boolean) {
-    this.timeElapsed = Math.round(this.song.seek() * 1000);
+    this.timeElapsed = performance.now() - this.startTimeMs;
 
     // Play video if it exists, accounting for audio delay
     if (
@@ -1020,6 +1021,7 @@ export class Game {
       }
 
       this.song.play();
+      this.startTimeMs = performance.now() - (this.song.seek() * 1000);
       this.state = "PLAY";
     }
   }
@@ -1056,8 +1058,9 @@ export class Game {
     }
 
     this.song.seek(time);
+    this.startTimeMs = performance.now() - (time * 1000);
 
-    this.timeElapsed = Math.round(time * 1000);
+    this.timeElapsed = time * 1000;
     if (this.videoEl) {
       this.videoEl.currentTime = time;
     }
