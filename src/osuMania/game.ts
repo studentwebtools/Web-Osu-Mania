@@ -156,9 +156,6 @@ export class Game {
   public startTime: number;
   public endTime: number;
 
-  public startTimeMs: number = 0;
-  private audioStarted = false;
-
   public breaks: Break[];
 
   private pauseCountdown: number;
@@ -626,7 +623,6 @@ export class Game {
             this.countdown.view.alpha = 1;
           }
 
-          this.startTimeMs = performance.now() - (this.song.seek() * 1000);
           this.play();
         }
 
@@ -665,27 +661,8 @@ export class Game {
     this.audioSystem.playedSounds.clear();
   }
 
-  public setPlaybackTimeFromSong(ms: number) {
-    this.timeElapsed = ms;
-    this.startTimeMs = performance.now() - ms;
-  }
-  
   private playUpdate(isAfterSeek?: boolean) {
-    if (!this.audioStarted || !this.song.playing()) {
-      return;
-    }
-
-    const audioTime = this.song.seek() * 1000;
-    const elapsedSinceAudioStart = performance.now() - this.startTimeMs;
-
-    // Adjust CPU time advancement based on playback rate
-    this.timeElapsed = this.startTimeMs + (elapsedSinceAudioStart * this.mods.playbackRate);
-
-    // Keep it loosely synced to audio to prevent drift
-    const audioSync = audioTime;
-    if (Math.abs(this.timeElapsed - audioSync) > 100) {
-      this.timeElapsed = audioSync;
-    }
+    this.timeElapsed = Math.round(this.song.seek() * 1000);
 
     // Play video if it exists, accounting for audio delay
     if (
@@ -1008,7 +985,6 @@ export class Game {
   }
 
   public pause() {
-    this.audioStarted = false;
     this.videoEl?.pause();
     this.song.pause();
     this.state = "PAUSE";
@@ -1043,17 +1019,8 @@ export class Game {
         this.videoEl.play();
       }
 
-      this.audioStarted = false;
-      this.state = "PLAY";
-
-      this.song.once("play", () => {
-      this.audioStarted = true;
-
-      // Anchor the CPU clock to the actual audio start position.
-      this.startTimeMs = performance.now() - this.song.seek() * 1000;
-      });
-
       this.song.play();
+      this.state = "PLAY";
     }
   }
 
@@ -1089,8 +1056,8 @@ export class Game {
     }
 
     this.song.seek(time);
-    this.setPlaybackTimeFromSong(time * 1000);
 
+    this.timeElapsed = Math.round(time * 1000);
     if (this.videoEl) {
       this.videoEl.currentTime = time;
     }
