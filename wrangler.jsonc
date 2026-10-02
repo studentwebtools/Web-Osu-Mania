@@ -6,6 +6,9 @@
     "compatibility_flags": [
         "nodejs_compat"
     ],
+    "vars": {
+        "TRUST_CF_CONNECTING_IP": "true"
+    },
     "kv_namespaces": [
         {
             "binding": "OSU_API",
